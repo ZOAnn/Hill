@@ -24,11 +24,15 @@ public class SignupActivity extends AppCompatActivity {
     @BindView(R.id.btn_signup) Button _signupButton;
     @BindView(R.id.link_login) TextView _loginLink;
 
+    private DBHelper db;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.signup);
         ButterKnife.bind(this);
+
+        db =new DBHelper(this);
 
         _signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,20 +69,31 @@ public class SignupActivity extends AppCompatActivity {
         progressDialog.setMessage("注册中...");
         progressDialog.show();
 
-        String name = _nameText.getText().toString();
-        String mobile = _mobileText.getText().toString();
-        String password = _passwordText.getText().toString();
-        String reEnterPassword = _reEnterPasswordText.getText().toString();
+        final String name = _nameText.getText().toString();
+        final String mobile = _mobileText.getText().toString();
+        final String password = _passwordText.getText().toString();
+        final String reEnterPassword = _reEnterPasswordText.getText().toString();
 
-        // TODO: 注册信息的逻辑
+
 
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
-                        // On complete call either onSignupSuccess or onSignupFailed
-                        // depending on success
-                        onSignupSuccess();
-                        // onSignupFailed();
+                        //注册信息的逻辑
+
+                        if (!db.checkUser(mobile)) {
+
+                            User user = new User();
+                            user.setName(name);
+                            user.setMobile(mobile);
+                            user.setPassword(password);
+
+                            db.addUser(user);
+
+                            onSignupSuccess();
+                        } else {
+                            onSignupFailed();
+                        }
                         progressDialog.dismiss();
                     }
                 }, 3000);

@@ -1,7 +1,11 @@
 package com.androidcourse.hill;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
@@ -17,6 +21,7 @@ import butterknife.ButterKnife;
 
 
 public class LoginActivity extends AppCompatActivity {
+
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
 
@@ -25,11 +30,14 @@ public class LoginActivity extends AppCompatActivity {
     @BindView(R.id.btn_login) Button _loginButton;
     @BindView(R.id.link_signup) TextView _signupLink;
 
+    private DBHelper db;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
         ButterKnife.bind(this);
+
+        db =new DBHelper(this);
 
         _loginButton.setOnClickListener(new View.OnClickListener() {
 
@@ -66,17 +74,19 @@ public class LoginActivity extends AppCompatActivity {
         progressDialog.setMessage("登录中...");
         progressDialog.show();
 
-        String phone = _phoneText.getText().toString();
-        String password = _passwordText.getText().toString();
-
-        // TODO: 登陆信息验证过程
+        final String phone = _phoneText.getText().toString();
+        final String password = _passwordText.getText().toString();
 
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
-                        // On complete call either onLoginSuccess or onLoginFailed
-                        onLoginSuccess();
-                        // onLoginFailed();
+                        //登陆信息验证过程
+
+                        if (db.checkUser(phone, password)) {
+                            onLoginSuccess();
+                        } else {
+                            onLoginFailed();
+                        }
                         progressDialog.dismiss();
                     }
                 }, 3000);
